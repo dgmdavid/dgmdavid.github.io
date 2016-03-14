@@ -1,0 +1,158 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Memory description file
+-
+- Rev. 0.2 07/21/2006 -- First "Public Release". Changed it completely.
+- Rev. 0.1 06/27/2006 -- Begin of work.
+--------------------------------------------------------------------------------
+
+        Jaguar has 256KB of RAM and a maximum ROM size of 16128KB, in a total of
+    16 mega bytes.
+        The Memory is accessed directly from 24-bit address.
+        S and D registers will be used in memory operations for source and
+    destination offsets.
+        Here is how memory is mapped:
+
+          __________
+ $000000 |          |
+         | Fast     | Fast Access Scratch Area
+         | Scratch  | $000000 - $0000FF (256 bytes)
+         | Area     |
+         |          | This area is the "Zero-page" stratch area, for fast
+         |          | access. Programmers can use this area to store variables
+         |          | that are used very often.
+         |          |
+         |----------|-----------------------------------------------------------
+ $000100 |          |
+         | Work RAM | Work RAM Area
+         |          | $000100 - $00FFFF ($FF00, 65280 bytes)
+         |          |
+         |          | Programmers can use this area to store any data they want.
+         |          |
+         |----------|-----------------------------------------------------------
+ $010000 |          |
+         |  Stack   | Stack Area
+         |          | $010000 - $010FFF ($1000, 4096 bytes)
+         |          |
+         |          | Here goes the Stack data.
+         |          |
+         |----------|-----------------------------------------------------------
+ $011000 |          |
+         | Registers| Registers Area
+         |          | $011000 - $01100E ($0F, 15 bytes)
+         |          |
+         |          | Here goes the processor hardware registers.
+         |          | You cannot access this area directly.
+         |          |
+         |----------|-----------------------------------------------------------
+ $01100F |          |
+         | Joystick | Joystick Status Area
+         |  Status  | $01100F - ($1 - 1 byte)
+         |          |
+         |          | Here goes the joystick status.
+         |          |   Bit 0 - Up direction
+         |          |       1 - Down direction
+         |          |       2 - Left direction
+         |          |       3 - Right direction
+         |          |       4 - Start button
+         |          |       5 - Select button
+         |          |       6 - A button
+         |          |       7 - B button
+         |          |
+         |----------|--> Here begins the Video shared area <--------------------
+ $011010 |          |
+         | Plane 0  | Tile Plane 0
+         |          | $011010 - $01180F ($800, 2048 bytes)
+         |          |
+         |          | See "Planes.txt" for more details.
+         |          |
+         |----------|-----------------------------------------------------------
+ $011810 |          |
+         | Plane 1  | Tile Plane 1
+         |          | $011810 - $01200F ($800, 2048 bytes)
+         |          |
+         |          | Same as above.
+         |          |
+         |----------|-----------------------------------------------------------
+ $012010 |          |
+         | Plane 2  | Tile Plane 2 (Window Plane)
+         | Window   | $012010 - $01262F ($620, 1568 bytes)
+         |          |
+         |          | Same as above.
+         |          |
+         |----------|-----------------------------------------------------------
+ $012630 |          |
+         | Plane 0  | Scrolling data for Plane 0
+         | Scrolling| $012630 - $012650 ($21, 33 bytes)
+         | Data     |
+         |          |  1 byte  - the Y scrolling amount (0 to 255)
+         |          | 32 bytes - the X scrolling amount for each row
+         |          |
+         |----------|-----------------------------------------------------------
+ $012651 |          |
+         | Plane 1  | Scrolling data for Plane 1
+         | Scrolling| $012651 - $012671 ($21, 33 bytes)
+         | Data     |
+         |          | Same as above.
+         |          |
+         |----------|-----------------------------------------------------------
+ $012672 |          |
+         |  VBLANK  | VBlank/HBlank Status Area
+         |  HBLANK  | $012672 - $012673 ($02, 2 bytes)
+         |          |
+         |          |   1 byte - 1 if VBlank is occuring
+         |          |   1 byte - 1 if HBlank is occuring
+         |          |
+         |----------|-----------------------------------------------------------
+ $012674 |          |
+         | Palette  | Palette Data Area
+         |  Data    | $012674 - $012773 ($100, 256 bytes)
+         |          |
+         |----------|-----------------------------------------------------------
+ $012774 |          |
+         |  Sprite  | Sprite Table
+         |  Table   | $012774 - $012C73 ($500, 1280 bytes)
+         |          |
+         |          | See "Sprites.txt" for details.
+         |          |
+         |----------|--> End of Video shared area (5376 bytes, $1500) <---------
+ $012C74 |          |
+         | Scratch  | Scratch Area
+         |  Area    | $012C74 - $01FFFF ($D38C, 54156 bytes)
+         |          |
+         |          | Programmers can use this area to store any data they want.
+         |          |
+         |----------|-----------------------------------------------------------
+ $020000 |          |
+         |   Tile   | Tile Data Area
+         |   Data   | $020000 - $02FFFF ($10000, 65536 bytes, 64KB)
+         |          |
+         |          | Here is where tile data will be stored.
+         |          | See "Tiles.txt" for more details.
+         |          |
+         |----------|-----------------------------------------------------------
+ $030000 |          |
+         |  Sound   | Sound Data Area
+         |   Data   | $030000 - $03FFFF ($10000, 65536 bytes, 64KB)
+         |          |
+         |          | Here is where sound data will be stored.
+         |          | See "Sound.txt" for more details.
+         |          |
+         |----------|-----------------------------------------------------------
+ $040000 |          |
+         | Cartridge| Cartridge ROM Area
+         |   ROM    | $040000 - $FFFFFF ($FC0000, 16515072 bytes, 16128KB )
+         |          |
+         |          | Here goes the data that is in the cartridge ROM.
+         |          | When the system is turned on, P will be set to this
+         |          | address and it will start running.
+         |          | Note that 16128KB is the maximum size of the ROM, but
+         |          | it can have any size below this.
+         |          |
+          ----------
+
+
+EOF

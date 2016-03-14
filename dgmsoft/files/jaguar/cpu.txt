@@ -1,0 +1,739 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Main CPU description file
+-
+- Rev. 0.5 07/27/2006 -- Changed registers and instruction set was increased.
+- Rev. 0.4 07/11/2006 -- First "Public release".
+- Rev. 0.3 07/07/2006 -- Added more instructions. Again, checking for errors.
+- Rev. 0.2 07/04/2006 -- Instruction Set defined. Checking for errors.
+- Rev. 0.1 06/27/2006 -- Begin of work. Registers defined.
+--------------------------------------------------------------------------------
+
+        The Jaguar Virtual Video-Game uses a microprocessor called JG82.
+        JG82 is a virtual 8-bit microprocessor with a reduced instruction set,
+    that runs at 2.15MHz.
+        JG82 can be said as Big-Endian, which means that the most significant
+    byte is stored in the left end of a word.
+        It has 8 registers:
+
+            A - General use 8-bit Accumulator Register
+            B - General use 8-bit Register
+            C - General use 8-bit Register
+            S - 24-bit Source Offset Register
+            D - 24-bit Destination Offset Register
+            T - 12-bit Stack Pointer Register, not directly accessible
+            P - 24-bit Program Pointer Register, not directly accessible
+            F - 8-bit Flags Register, not directly accessible
+
+        An explanation of F (Flags) Register:
+            Bit 0 - Greater Flag
+                1 - Equal Flag
+                2 - Carry Flag
+                3 - Zero Flag
+              4-7 - Unused
+
+        Here is the quick description of all 105 (225 opcodes) instructions of
+    JG82:
+
+                                 Conventions:
+                      ___________________________________
+                     | i8  | Immediate 8-bit value       |
+                     | i16 | Immediate 16-bit value      |
+                     | i24 | Immediate 24-bit value      |
+                     | a8  | Immediate 8-bit address     |
+                     | a16 | Immediate 16-bit address    |
+                     | a24 | Immediate 24-bit address    |
+                     | a   | Register A                  |
+                     | b   | Register B                  |
+                     | c   | Register C                  |
+                     | ib  | Immediate Bit (0-7)         |
+                     | is  | Immediate Shift (1-8)       |
+                     | G   | Greater flag is affected.   |
+                     | E   | Equal flag is affected.     |
+                     | C   | Carry flag is affected.     |
+                     | Z   | Zero flag is affected.      |
+                      -----------------------------------
+    (NOTE: If a flag is marked to be affected by an instruction, it will be
+           set or unset, so it will _never_ be untouched.)
+
+     __________________________________________________________________________
+    | Mnemonic | Opc | GECZ | Description                                      |
+    |----------|-----|------|--------------------------------------------------|
+    | NOP      | $00 | ---- | No operator.                                     |
+    |----------|-----|------|--------------------------------------------------|
+    | LDA      | $01 | ---Z | Load A with Memory.                              |
+    | LDA a8   | $02 | ---Z | Load A with value in Zero-Page Memory.           |
+    |          |     |      |                                                  |
+    | LDB      | $03 | ---Z | Load B with Memory.                              |
+    | LDB a8   | $04 | ---Z | Load B with value in Zero-Page Memory.           |
+    |          |     |      |                                                  |
+    | LDC      | $05 | ---Z | Load C with Memory.                              |
+    | LDC a8   | $06 | ---Z | Load C with value in Zero-Page Memory.           |
+    |----------|-----|------|--------------------------------------------------|
+    | SETA i8  | $07 | ---- | Set A with immediate value.                      |
+    | SETA b   | $08 | ---- | Set A with B.                                    |
+    | SETA c   | $09 | ---- | Set A with C.                                    |
+    |          |     |      |                                                  |
+    | SETB i8  | $0A | ---- | Set B with immediate value.                      |
+    | SETB a   | $0B | ---- | Set B with A.                                    |
+    | SETB c   | $0C | ---- | Set B with C.                                    |
+    |          |     |      |                                                  |
+    | SETC i8  | $0D | ---- | Set C with immediate value.                      |
+    | SETC a   | $0E | ---- | Set C with A.                                    |
+    | SETC b   | $0F | ---- | Set C with B.                                    |
+    |          |     |      |                                                  |
+    | SETS i24 | $10 | ---- | Set S with immediate.                            |
+    | SETS i16 | $11 | ---- | Set S with immediate.                            |
+    | SETS i8  | $12 | ---- | Set S with immediate.                            |
+    |          |     |      |                                                  |
+    | SETD i24 | $13 | ---- | Set D with immediate.                            |
+    | SETD i16 | $14 | ---- | Set D with immediate.                            |
+    | SETD i8  | $15 | ---- | Set D with immediate.                            |
+    |----------|-----|------|--------------------------------------------------|
+    | STA      | $16 | ---- | Store A in Memory.                               |
+    | STA a8   | $17 | ---- | Store A in Zero-Page Memory.                     |
+    |          |     |      |                                                  |
+    | STB      | $18 | ---- | Store B in Memory.                               |
+    | STB a8   | $19 | ---- | Store B in Zero-Page Memory.                     |
+    |          |     |      |                                                  |
+    | STC      | $1A | ---- | Store C in Memory.                               |
+    | STC a8   | $1B | ---- | Store C in Zero-Page Memory.                     |
+    |----------|-----|------|--------------------------------------------------|
+    | INCA     | $1C | --C- | Increment A by 1.                                |
+    | INCB     | $1D | --C- | Increment B by 1.                                |
+    | INCC     | $1E | --C- | Increment C by 1.                                |
+    | INCS     | $1F | --C- | Increment S by 1.                                |
+    | INCD     | $20 | --C- | Increment D by 1.                                |
+    |----------|-----|------|--------------------------------------------------|
+    | DECA     | $21 | --CZ | Decrement A by 1.                                |
+    | DECB     | $22 | --CZ | Decrement B by 1.                                |
+    | DECC     | $23 | --CZ | Decrement C by 1.                                |
+    | DECS     | $24 | --CZ | Decrement S by 1.                                |
+    | DECD     | $25 | --CZ | Decrement D by 1.                                |
+    |----------|-----|------|--------------------------------------------------|
+    | ADDA i8  | $26 | --C- | Add immediate to A.                              |
+    | ADDA b   | $27 | --C- | Add B to A.                                      |
+    | ADDA c   | $28 | --C- | Add C to A.                                      |
+    |          |     |      |                                                  |
+    | ADDB i8  | $29 | --C- | Add immediate to B.                              |
+    | ADDB a   | $2A | --C- | Add A to B.                                      |
+    | ADDB c   | $2B | --C- | Add C to B.                                      |
+    |          |     |      |                                                  |
+    | ADDC i8  | $2C | --C- | Add immediate to C.                              |
+    | ADDC a   | $2D | --C- | Add A to C.                                      |
+    | ADDC b   | $2E | --C- | Add B to C.                                      |
+    |          |     |      |                                                  |
+    | ADDS i16 | $2F | --C- | Add immediate to S.                              |
+    | ADDS i8  | $30 | --C- | Add immediate to S.                              |
+    | ADDS a   | $31 | --C- | Add A to S.                                      |
+    |          |     |      |                                                  |
+    | ADDD i16 | $32 | --C- | Add immediate to D.                              |
+    | ADDD i8  | $33 | --C- | Add immediate to D.                              |
+    | ADDD a   | $34 | --C- | Add A to D.                                      |
+    |----------|-----|------|--------------------------------------------------|
+    | SUBA i8  | $35 | --CZ | Subtract immediate of A.                         |
+    | SUBA b   | $36 | --CZ | Subtract B of A.                                 |
+    | SUBA c   | $37 | --CZ | Subtract C of A.                                 |
+    |          |     |      |                                                  |
+    | SUBB i8  | $38 | --CZ | Subtract immediate of B.                         |
+    | SUBB a   | $39 | --CZ | Subtract A of B.                                 |
+    | SUBB c   | $3A | --CZ | Subtract C of B.                                 |
+    |          |     |      |                                                  |
+    | SUBC i8  | $3B | --CZ | Subtract immediate of C.                         |
+    | SUBC a   | $3C | --CZ | Subtract A of C.                                 |
+    | SUBC b   | $3D | --CZ | Subtract B of C.                                 |
+    |          |     |      |                                                  |
+    | SUBS i16 | $3E | --CZ | Subtract immediate of S.                         |
+    | SUBS i8  | $3F | --CZ | Subtract immediate of S.                         |
+    | SUBS a   | $40 | --CZ | Subtract A of S.                                 |
+    |          |     |      |                                                  |
+    | SUBD i16 | $41 | --CZ | Subtract immediate of D.                         |
+    | SUBD i8  | $42 | --CZ | Subtract immediate of D.                         |
+    | SUBD a   | $43 | --CZ | Subtract A of D.                                 |
+    |----------|-----|------|--------------------------------------------------|
+    | TSTA ib  | $44 | ---Z | Test the ib'th bit of A.                         |
+    | TSTB ib  | $4C | ---Z | Test the ib'th bit of B.                         |
+    | TSTC ib  | $54 | ---Z | Test the ib'th bit of C.                         |
+    |----------|-----|------|--------------------------------------------------|
+    | ANDA i8  | $5C | ---Z | Perform AND operation with A and immediate.      |
+    | ANDA b   | $5D | ---Z | Perform AND operation with A and B.              |
+    | ANDA c   | $5E | ---Z | Perform AND operation with A and C.              |
+    |          |     |      |                                                  |
+    | ANDB i8  | $5F | ---Z | Perform AND operation with B and immediate.      |
+    | ANDB a   | $60 | ---Z | Perform AND operation with B and A.              |
+    | ANDB c   | $61 | ---Z | Perform AND operation with B and C.              |
+    |          |     |      |                                                  |
+    | ANDC i8  | $62 | ---Z | Perform AND operation with C and immediate.      |
+    | ANDC a   | $63 | ---Z | Perform AND operation with C and A.              |
+    | ANDC b   | $64 | ---Z | Perform AND operation with C and B.              |
+    |----------|-----|------|--------------------------------------------------|
+    | ORA i8   | $65 | ---Z | Perform OR operation with A and immediate.       |
+    | ORA b    | $66 | ---Z | Perform OR operation with A and B.               |
+    | ORA c    | $67 | ---Z | Perform OR operation with A and C.               |
+    |          |     |      |                                                  |
+    | ORB i8   | $68 | ---Z | Perform OR operation with B and immediate.       |
+    | ORB a    | $69 | ---Z | Perform OR operation with B and A.               |
+    | ORB c    | $6A | ---Z | Perform OR operation with B and C.               |
+    |          |     |      |                                                  |
+    | ORC i8   | $6B | ---Z | Perform OR operation with C and immediate.       |
+    | ORC a    | $6C | ---Z | Perform OR operation with C and A.               |
+    | ORC b    | $6D | ---Z | Perform OR operation with C and B.               |
+    |----------|-----|------|--------------------------------------------------|
+    | XORA i8  | $6E | ---Z | Perform XOR operation with A and immediate.      |
+    | XORA b   | $6F | ---Z | Perform XOR operation with A and B.              |
+    | XORA c   | $70 | ---Z | Perform XOR operation with A and C.              |
+    |          |     |      |                                                  |
+    | XORB i8  | $71 | ---Z | Perform XOR operation with B and immediate.      |
+    | XORB a   | $72 | ---Z | Perform XOR operation with B and A.              |
+    | XORB c   | $73 | ---Z | Perform XOR operation with B and C.              |
+    |          |     |      |                                                  |
+    | XORC i8  | $74 | ---Z | Perform XOR operation with C and immediate.      |
+    | XORC a   | $75 | ---Z | Perform XOR operation with C and A.              |
+    | XORC b   | $76 | ---Z | Perform XOR operation with C and B.              |
+    |----------|-----|------|--------------------------------------------------|
+    | NOTA     | $77 | ---Z | Invert all bits of A.                            |
+    | NOTB     | $78 | ---Z | Invert all bits of B.                            |
+    | NOTC     | $79 | ---Z | Invert all bits of C.                            |
+    |----------|-----|------|--------------------------------------------------|
+    | SHLA is  | $7A | ---- | Shift A to left.                                 |
+    | SHLB is  | $82 | ---- | Shift B to left.                                 |
+    | SHLC is  | $8A | ---- | Shift C to left.                                 |
+    |----------|-----|------|--------------------------------------------------|
+    | SHRA is  | $92 | ---Z | Shift A to right.                                |
+    | SHRB is  | $9A | ---Z | Shift B to right.                                |
+    | SHRC is  | $A2 | ---Z | Shift C to right.                                |
+    |----------|-----|------|--------------------------------------------------|
+    | CMPA i8  | $AA | GE-- | Compare A with immediate.                        |
+    | CMPA b   | $AB | GE-- | Compare A with B.                                |
+    | CMPA c   | $AC | GE-- | Compare A with C.                                |
+    | CMPB i8  | $AD | GE-- | Compare B with immediate.                        |
+    | CMPB c   | $AE | GE-- | Compare B with C.                                |
+    | CMPC i8  | $AF | GE-- | Compare C with immediate.                        |
+    |----------|-----|------|--------------------------------------------------|
+    | JMP a8   | $B0 | ---- | Jump to near address (relative -128 to 127).     |
+    | JMPF a16 | $B1 | ---- | Jump to far address (relative -32,768 to 32,767) |
+    | JMPA a24 | $B2 | ---- | Jump to absolute address.                        |
+    |----------|-----|------|--------------------------------------------------|
+    | JZ   a8  | $B3 | ---- | Jump to near address if Zero flag is set.        |
+    | JZF  a16 | $B4 | ---- | Jump to far address if Zero flag is set.         |
+    | JZA  a24 | $B5 | ---- | Jump to absolute address if Zero flag is set.    |
+    | JNZ  a8  | $B6 | ---- | Jump to near address if Zero flag is not set.    |
+    | JNZF a16 | $B7 | ---- | Jump to far address if Zero flag is not set.     |
+    | JNZA a24 | $B8 | ---- | Jump to absolute address if Zero flag is not set.|
+    |----------|-----|------|--------------------------------------------------|
+    | JC   a8  | $B9 | ---- | Jump to near address if Carry flag is set.       |
+    | JCF  a16 | $BA | ---- | Jump to far address if Carry flag is set.        |
+    | JCA  a24 | $BB | ---- | Jump to absolute address if Carry flag is set.   |
+    | JNC  a8  | $BC | ---- | Jump to near address if Carry flag is not set.   |
+    | JNCF a16 | $BD | ---- | Jump to far address if Carry flag is not set.    |
+    | JNCA a24 | $BE | ---- | Jump to absolute address if Carry flag isn't set.|
+    |----------|-----|------|--------------------------------------------------|
+    | JE   a8  | $BF | ---- | Jump to near address if Equal flag is set.       |
+    | JEF  a16 | $C0 | ---- | Jump to far address if Equal flag is set.        |
+    | JEA  a24 | $C1 | ---- | Jump to absolute address if Equal flag is set.   |
+    | JNE  a8  | $C2 | ---- | Jump to near address if Equal flag is not set.   |
+    | JNEF a16 | $C3 | ---- | Jump to far address if Equal flag is not set.    |
+    | JNEA a24 | $C4 | ---- | Jump to absolute address if Equal flag isn't set.|
+    |----------|-----|------|--------------------------------------------------|
+    | JG  a8   | $C5 | ---- | Jump to near address if Greater flag is set.     |
+    | JGF a16  | $C6 | ---- | Jump to far address if Greater flag is set.      |
+    | JGA a24  | $C7 | ---- | Jump to absolute address if Greater flag is set. |
+    | JL  a8   | $C8 | ---- | Jump to near addr. if G. and E. flags aren't set.|
+    | JLF a16  | $C9 | ---- | Jump to far addr. if G. and E. flags are not set.|
+    | JLA a24  | $CA | ---- | Jump to abs. addr. if G. and E. flags aren't set.|
+    |----------|-----|------|--------------------------------------------------|
+    | JSR a24  | $CB | ---- | Jump to sub-routine saving P to stack.           |
+    | RET      | $CC | ---- | Return from a sub-routive poping P from stack.   |
+    |----------|-----|------|--------------------------------------------------|
+    | PUSHA    | $CD | ---- | Push A to stack and increment stack pointer.     |
+    | PUSHB    | $CE | ---- | Push B to stack and increment stack pointer.     |
+    | PUSHC    | $CF | ---- | Push C to stack and increment stack pointer.     |
+    | PUSHS    | $D0 | ---- | Push S to stack and inc. stack p. by 3.          |
+    | PUSHD    | $D1 | ---- | Push D to stack and inc. stack p. by 3.          |
+    | PUSHP    | $D2 | ---- | Push P to stack and inc. stack pointer by 3.     |
+    | PUSH i8  | $D3 | ---- | Push an immediate value to stack.                |
+    |----------|-----|------|--------------------------------------------------|
+    | POPA     | $D4 | ---- | Pop A from stack and decrement stack pointer.    |
+    | POPB     | $D5 | ---- | Pop B from stack and decrement stack pointer.    |
+    | POPC     | $D6 | ---- | Pop C from stack and decrement stack pointer.    |
+    | POPS     | $D7 | ---- | Pop S from stack and decrement stack p. by 3.    |
+    | POPD     | $D8 | ---- | Pop D from stack and decrement stack p. by 3.    |
+    | POP      | $D9 | ---- | Pop an 8-bit value from stack and store in memory|
+    |----------|-----|------|--------------------------------------------------|
+    | CLG      | $DA | G--- | Clear the Greater Flag.                          |
+    | CLE      | $DB | -E-- | Clear the Equal Flag.                            |
+    | CLC      | $DC | --C- | Clear the Carry Flag.                            |
+    | CLZ      | $DD | ---Z | Clear the Zero Flag.                             |
+    | CLF      | $DE | GECZ | Clear all flags.                                 |
+    |----------|-----|------|--------------------------------------------------|
+    | RST      | $DF | ---- | Soft reset.                                      |
+    | HTL      | $E0 | ---- | Halt the processor.                              |
+     --------------------------------------------------------------------------
+
+
+        Here is the detailed description of all 105 (225 opcodes) instructions
+    of JG82:
+
+    ----------------------------------------------------------------------------
+    NOP
+    ----------------------------------------------------------------------------
+        No operator.
+
+            NOP - Opc: $00 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    LDx
+    ----------------------------------------------------------------------------
+        Load register x with memory value pointed by S. Valid registers are A,
+    B and C. It will set the Zero flag if the value is 0 or unset if not zero.
+    S will NOT be incremented automatically. If an 8-bit address is passed, the
+    register x will be loaded with the value in Zero-Page memory area;
+    S register will not be changed.
+
+        Valid operators are:
+            LDA    - Opc: $01    - Cycles: 1 - Bytes: 1
+            LDA a8 - Opc: $02+a8 - Cycles: 2 - Bytes: 2
+            LDB    - Opc: $03    - Cycles: 1 - Bytes: 1
+            LDB a8 - Opc: $04+a8 - Cycles: 2 - Bytes: 2
+            LDC    - Opc: $05    - Cycles: 1 - Bytes: 1
+            LDC a8 - Opc: $06+a8 - Cycles: 2 - Bytes: 2
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    SETx
+    ----------------------------------------------------------------------------
+        Set register x with a value.
+        This operator does not affect any flags.
+
+        Valid operators are:
+            SETA i8 - Opc: $07+i8 - Cycles: 2 - Bytes: 2
+            SETA b  - Opc: $08    - Cycles: 1 - Bytes: 1
+            SETA c  - Opc: $09    - Cycles: 1 - Bytes: 1
+
+            SETB i8 - Opc: $0A+i8 - Cycles: 2 - Bytes: 2
+            SETB a  - Opc: $0B    - Cycles: 1 - Bytes: 1
+            SETB c  - Opc: $0C    - Cycles: 1 - Bytes: 1
+
+            SETC i8 - Opc: $0D+i8 - Cycles: 2 - Bytes: 2
+            SETC a  - Opc: $0E    - Cycles: 1 - Bytes: 1
+            SETC b  - Opc: $0F    - Cycles: 1 - Bytes: 1
+
+            SETS i24 - Opc: $10+i24 - Cycles: 4 - Bytes: 4
+            SETS i16 - Opc: $11+i16 - Cycles: 3 - Bytes: 3
+            SETS i8  - Opc: $12+i8  - Cycles: 2 - Bytes: 2
+
+            SETD i24 - Opc: $13+i24 - Cycles: 4 - Bytes: 4
+            SETD i16 - Opc: $14+i16 - Cycles: 3 - Bytes: 3
+            SETD i8  - Opc: $15+i8  - Cyckes: 2 - Bytes: 2
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    STx
+    ----------------------------------------------------------------------------
+        Store the value of register x in the memory position pointed by D.
+    D will NOT be increased automatically. If an 8-bit address is passed, the
+    value of x register will be stored at Zero-Page memory location. D register
+    will not be changed also.
+        This operator does not affect any flags.
+
+        Valid operators are:
+            STA    - Opc: $16    - Cycles: 1 - Bytes: 1
+            STA a8 - Opc: $17+a8 - Cycles: 2 - Bytes: 2
+            STB    - Opc: $18    - Cycles: 1 - Bytes: 1
+            STB a8 - Opc: $19+a8 - Cycles: 2 - Bytes: 2
+            STC    - Opc: $1A    - Cycles: 1 - Bytes: 1
+            STC a8 - Opc: $1B+a8 - Cycles: 2 - Bytes: 2
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    INCx
+    ----------------------------------------------------------------------------
+        Increment register x by 1. If the value surpasses its limit, the Carry
+    flag will be set and the register value will become 0. The limit for A, B
+    and C is 2^8 (255), S and D 2^24 (16777216).
+
+        Valid operators are:
+            INCA - Opc: $1C - Cycles: 1 - Bytes: 1
+            INCB - Opc: $1D - Cycles: 1 - Bytes: 1
+            INCC - Opc: $1E - Cycles: 1 - Bytes: 1
+            INCS - Opc: $1F - Cycles: 1 - Bytes: 1
+            INCD - Opc: $20 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    DECx
+    ----------------------------------------------------------------------------
+        Decrement register x by 1. If the value become 0, then the Zero flag
+    will be set. The value will turn to its maximum if the value is already 0
+    before the instruction is called. In this case, Carry flag will be set as
+    well.
+
+        Valid operators are:
+            DECA - Opc: $21 - Cycles: 1 - Bytes: 1
+            DECB - Opc: $22 - Cycles: 1 - Bytes: 1
+            DECC - Opc: $23 - Cycles: 1 - Bytes: 1
+            DECS - Opc: $24 - Cycles: 1 - Bytes: 1
+            DECD - Opc: $25 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    ADDx
+    ----------------------------------------------------------------------------
+        Add a value to register x. The result will be stored in the register x.
+    If the result surpasses the register limits, the Carry flag will be set.
+
+        Valid operators are:
+            ADDA i8  - Opc: $26+i8 - Cycles: 2 - Bytes: 2
+            ADDA b   - Opc: $27    - Cycles: 1 - Bytes: 1
+            ADDA c   - Opc: $28    - Cycles: 1 - Bytes: 1
+
+            ADDB i8  - Opc: $29+i8 - Cycles: 2 - Bytes: 2
+            ADDB a   - Opc: $2A    - Cycles: 1 - Bytes: 1
+            ADDB c   - Opc: $2B    - Cycles: 1 - Bytes: 1
+
+            ADDC i8  - Opc: $2C+i8 - Cycles: 2 - Bytes: 2
+            ADDC a   - Opc: $2D    - Cycles: 1 - Bytes: 1
+            ADDC b   - Opc: $2E    - Cycles: 1 - Bytes: 1
+
+            ADDS i16 - Opc: $2F+i16 - Cycles: 3 - Bytes: 3
+            ADDS i8  - Opc: $30+i8  - Cycles: 2 - Bytes: 2
+            ADDS a   - Opc: $31     - Cycles: 1 - Bytes: 1
+
+            ADDD i16 - Opc: $32+i16 - Cycles: 3 - Bytes: 3
+            ADDD i8  - Opc: $33+i8  - Cycles: 2 - Bytes: 2
+            ADDD a   - Opc: $34     - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    SUBx
+    ----------------------------------------------------------------------------
+        Subtract a value from register x. The result will be stored in the
+    register x. If the result is 0, the Zero flag will be set. If it surpasses
+    the minimum value (0), the Carry Flag will be set.
+
+        Valid operators are:
+            SUBA i8  - Opc: $35+i8 - Cycles: 2 - Bytes: 2
+            SUBA b   - Opc: $36    - Cycles: 1 - Bytes: 1
+            SUBA c   - Opc: $37    - Cycles: 1 - Bytes: 1
+
+            SUBB i8  - Opc: $38+i8 - Cycles: 2 - Bytes: 2
+            SUBB a   - Opc: $39    - Cycles: 1 - Bytes: 1
+            SUBB c   - Opc: $3A    - Cycles: 1 - Bytes: 1
+
+            SUBC i8  - Opc: $3B+i8 - Cycles: 2 - Bytes: 2
+            SUBC a   - Opc: $3C    - Cycles: 1 - Bytes: 1
+            SUBC b   - Opc: $3D    - Cycles: 1 - Bytes: 1
+
+            SUBS i16 - Opc: $3E+i16 - Cycles: 3 - Bytes: 3
+            SUBS i8  - Opc: $3F+i8  - Cycles: 2 - Bytes: 2
+            SUBS a   - Opc: $40     - Cycles: 1 - Bytes: 1
+
+            SUBD i16 - Opc: $41+i16 - Cycles: 3 - Bytes: 3
+            SUBD i8  - Opc: $42+i8  - Cycles: 2 - Bytes: 2
+            SUBD a   - Opc: $43     - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    TSTx
+    ----------------------------------------------------------------------------
+        Test if bit in the register x is set. If the bit is 0, the Zero flag
+    will be set.
+
+        Valid operators are:
+            TSTA ib - Opc: $44..$4B - Cycles: 1 - Bytes: 1
+            TSTB ib - Opc: $4C..$53 - Cycles: 1 - Bytes: 1
+            TSTC ib - Opc: $54..$5B - Cycles: 1 - Bytes: 1
+            (the valid range for ib is 0 to 7)
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    ANDx
+    ----------------------------------------------------------------------------
+        Perform a bitwise AND operation in register x against a value or other
+    register. The result will be stored in the register x. If the result is 0,
+    the Zero flag will be set.
+
+        Valid operators are:
+            ANDA i8 - Opc: $5C - Cycles: 2 - Bytes: 2
+            ANDA b  - Opc: $5D - Cycles: 1 - Bytes: 1
+            ANDA c  - Opc: $5E - Cycles: 1 - Bytes: 1
+
+            ANDB i8 - Opc: $5F - Cycles: 2 - Bytes: 2
+            ANDB a  - Opc: $60 - Cycles: 1 - Bytes: 1
+            ANDB c  - Opc: $61 - Cycles: 1 - Bytes: 1
+
+            ANDC i8 - Opc: $62 - Cycles: 2 - Bytes: 2
+            ANDC a  - Opc: $63 - Cycles: 1 - Bytes: 1
+            ANDC b  - Opc: $64 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    ORx
+    ----------------------------------------------------------------------------
+        Perform a bitwise inclusive-OR operation in register x against a value
+    or other register. The result will be stored in the register x. If the
+    result is 0, the Zero flag will be set.
+
+        Valid operators are:
+            ORA i8 - Opc: $65 - Cycles: 2 - Bytes: 2
+            ORA b  - Opc: $66 - Cycles: 1 - Bytes: 1
+            ORA c  - Opc: $67 - Cycles: 1 - Bytes: 1
+
+            ORB i8 - Opc: $68 - Cycles: 2 - Bytes: 2
+            ORB a  - Opc: $69 - Cycles: 1 - Bytes: 1
+            ORB c  - Opc: $6A - Cycles: 1 - Bytes: 1
+
+            ORC i8 - Opc: $6B - Cycles: 2 - Bytes: 2
+            ORC a  - Opc: $6C - Cycles: 1 - Bytes: 1
+            ORC b  - Opc: $6D - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    XORx
+    ----------------------------------------------------------------------------
+        Perform a bitwise exclusive-OR operation in register x against a value
+    or other register. The result will be stored in the register x. If the
+    result is 0, the Zero flag will be set.
+
+        Valid operators are:
+            XORA i8 - Opc: $6E - Cycles: 2 - Bytes: 2
+            XORA b  - Opc: $6F - Cycles: 1 - Bytes: 1
+            XORA c  - Opc: $70 - Cycles: 1 - Bytes: 1
+
+            XORB i8 - Opc: $71 - Cycles: 2 - Bytes: 2
+            XORB a  - Opc: $72 - Cycles: 1 - Bytes: 1
+            XORB c  - Opc: $73 - Cycles: 1 - Bytes: 1
+
+            XORC i8 - Opc: $74 - Cycles: 2 - Bytes: 2
+            XORC a  - Opc: $75 - Cycles: 1 - Bytes: 1
+            XORC b  - Opc: $76 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    NOTx
+    ----------------------------------------------------------------------------
+        Invert all bits of the register x. The Zero flag will be set if the
+    result is 0.
+
+        Valid operators are:
+            NOTA - Opc: $77 - Cycles: 1 - Bytes: 1
+            NOTB - Opc: $78 - Cycles: 1 - Bytes: 1
+            NOTC - Opc: $79 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    SHLx
+    ----------------------------------------------------------------------------
+        Shift the bits of register x by is to left (towards the most significant
+    bit).
+
+        Valid operators are:
+            SHLA is - Opc: $7A..$81 - Cycles: 1 - Bytes: 1
+            SHLB is - Opc: $82..$89 - Cycles: 1 - Bytes: 1
+            SHLC is - Opc: $8A..$91 - Cycles: 1 - Bytes: 1
+            (valid range for is is 1 to 8)
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    SHRx
+    ----------------------------------------------------------------------------
+        Shift the bits of register x by is to right.
+
+        Valid operators are:
+            SHRA is - Opc: $92..$99 - Cycles: 1 - Bytes: 1
+            SHRB is - Opc: $9A..$A1 - Cycles: 1 - Bytes: 1
+            SHRC is - Opc: $A2..$A9 - Cycles: 1 - Bytes: 1
+            (valid range for is is 1 to 8)
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    CMPx
+    ----------------------------------------------------------------------------
+        Compare the value of register x to an immediate value of other register.
+    If register is greater of less than the other value, the Equal flag will be
+    unset; if greater, the Greater flag will be set, other case will be unset;
+    if it is equal, the Equal flag will be set and Greater flag unset.
+
+        Valid operators are:
+            CMPA i8 - Opc: $AA+i8 - Cycles: 2 - Bytes: 2
+            CMPA b  - Opc: $AB    - Cycles: 1 - Bytes: 1
+            CMPA c  - Opc: $AC    - Cycles: 1 - Bytes: 1
+
+            CMPB i8 - Opc: $AD+i8 - Cycles: 2 - Bytes: 2
+            CMPB c  - Opc: $AE    - Cycles: 1 - Bytes: 1
+
+            CMPC i8 - Opc: $AF+i8 - Cycles: 2 - Bytes: 2
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    JMPx
+    ----------------------------------------------------------------------------
+        Unconditional jump. There's near (relative) jump if the distance between
+    P and the destination address is less than -128 to back or less than 127 to
+    forward. There's a far (relative) jump if the distance between P and dest.
+    address is less than -32768 to back or 32767 to foward. There's also an
+    absolute jump to a 24-bit destination address.
+
+        Valid operators are:
+            JMP  a8  - Opc: $B0+a8  - Cycles: 2 - Bytes: 2
+            JMPF a16 - Opc: $B1+a26 - Cycles: 3 - Bytes: 3
+            JMPA a24 - Opc: $B2+a24 - Cycles: 4 - Bytes: 4
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    JZ/JNZ
+    ----------------------------------------------------------------------------
+        JZ will perform a jump if Zero flag is set. JNZ will do the same if the
+    Zero flag is not set. See "JMP" instruction for a description about near,
+    far and absolute jumps.
+
+        Valid operators are:
+            JZ   a8  - Opc: $B3+a8  - Cycles: 2 - Bytes: 2
+            JZF  a16 - Opc: $B4+a16 - Cycles: 3 - Bytes: 3
+            JZA  a24 - Opc: $B5+a24 - Cycles: 4 - Bytes: 4
+            JNZ  a8  - Opc: $B6+a8  - Cycles: 2 - Bytes: 2
+            JNZF a16 - Opc: $B7+a16 - Cycles: 3 - Bytes: 3
+            JNZA a24 - Opc: $B8+a24 - Cycles: 4 - Bytes: 4
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    JC/JNC
+    ----------------------------------------------------------------------------
+        JC will perform jump if Carry flag is set. JNC will do the same if the
+    Carry flag is not set. See "JMP" instruction for a description about near,
+    far and absolute jumps.
+
+        Valid operators are:
+            JC   a8  - Opc: $B9+a8  - Cycles: 2 - Bytes: 2
+            JCF  a16 - Opc: $BA+a16 - Cycles: 3 - Bytes: 3
+            JCA  a24 - Opc: $BB+a24 - Cycles: 4 - Bytes: 4
+            JNC  a8  - Opc: $BC+a8  - Cycles: 2 - Bytes: 2
+            JNCF a16 - Opc: $BD+a16 - Cycles: 3 - Bytes: 3
+            JNCA a24 - Opc: $BE+a24 - Cycles: 4 - Bytes: 4
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    JE/JNE
+    ----------------------------------------------------------------------------
+        JE will perform jump if Equal flag is set. JNE will do the same if the
+    Equal flag is not set. See "JMP" instruction for a description about near,
+    far and absolute jumps.
+
+        Valid operators are:
+            JE   a8  - Opc: $BF+a8  - Cycles: 2 - Bytes: 2
+            JEF  a16 - Opc: $C0+a16 - Cycles: 3 - Bytes: 3
+            JEA  a24 - Opc: $C1+a24 - Cycles: 4 - Bytes: 4
+            JNE  a8  - Opc: $C2+a8  - Cycles: 2 - Bytes: 2
+            JNEF a16 - Opc: $C3+a16 - Cycles: 3 - Bytes: 3
+            JNEA a24 - Opc: $C4+a24 - Cycles: 4 - Bytes: 4
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    JG/JL
+    ----------------------------------------------------------------------------
+        JG will perform jump if Greater flag is set. JL will do the same if the
+    Greater flag AND the Equal flag are not set. See "JMP" instruction for a
+    description about near, far and absolute jumps.
+
+        Valid operators are:
+            JG  a8  - Opc: $C5+a8  - Cycles: 2 - Bytes: 2
+            JGF a16 - Opc: $C6+a16 - Cycles: 3 - Bytes: 3
+            JGA a24 - Opc: $C7+a24 - Cycles: 4 - Bytes: 4
+            JL  a8  - Opc: $C8+a8  - Cycles: 2 - Bytes: 2
+            JLF a16 - Opc: $C9+a16 - Cycles: 3 - Bytes: 3
+            JLA a24 - Opc: $CA+a24 - Cycles: 4 - Bytes: 4
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    JSR
+    ----------------------------------------------------------------------------
+        JSR will perform an absolute jump and save P into stack.
+
+        Valid operators are:
+            JSR a24 - Opc: $CB+a24 - Cycles: 7 - Bytes: 4
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    RET
+    ----------------------------------------------------------------------------
+        RET will return from a sub-routine by getting the previous saved P from
+    the stack and jumping to it. It is an absolute jump.
+
+        Valid operators are:
+            RET - Opc: $CC - Cycles: 7 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    PUSHx
+    ----------------------------------------------------------------------------
+        Put the value of register x in the stack and increment the stack pointer
+    by register size. PUSH will push an 8-bit immediate value.
+
+        Valid operators are:
+            PUSHA   - Opc: $CD    - Cycles: 1 - Bytes: 1
+            PUSHB   - Opc: $CE    - Cycles: 1 - Bytes: 1
+            PUSHC   - Opc: $CF    - Cycles: 1 - Bytes: 1
+            PUSHS   - Opc: $D0    - Cycles: 4 - Bytes: 1
+            PUSHD   - Opc: $D1    - Cycles: 4 - Bytes: 1
+            PUSHP   - Opc: $D2    - Cycles: 4 - Bytes: 1
+            PUSH i8 - Opc: $D3+i8 - Cycles: 2 - Bytes: 2
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    POPx
+    ----------------------------------------------------------------------------
+        Get a value in the current stack position, put it into register x and
+    decrement stack pointer by size of the register. POP will pop the value to
+    memory address pointed by D. D will not be incremented.
+
+        Valid operators are:
+            POPA - Opc: $D4 - Cycles: 1 - Bytes: 1
+            POPB - Opc: $D5 - Cycles: 1 - Bytes: 1
+            POPC - Opc: $D6 - Cycles: 1 - Bytes: 1
+            POPS - Opc: $D7 - Cycles: 4 - Bytes: 1
+            POPD - Opc: $D8 - Cycles: 4 - Bytes: 1
+            POP  - Opc: $D9 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    CLx
+    ----------------------------------------------------------------------------
+        Clear the x flag (set it to 0). CLF will clear all flags.
+
+        Valid operators are:
+            CLG - Opc: $DA - Cycles: 1 - Bytes: 1
+            CLE - Opc: $DB - Cycles: 1 - Bytes: 1
+            CLC - Opc: $DC - Cycles: 1 - Bytes: 1
+            CLZ - Opc: $DD - Cycles: 1 - Bytes: 1
+            CLF - Opc: $DE - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    RST
+    ----------------------------------------------------------------------------
+        Perform a soft reset in the processor. (Set P to $040000)
+
+        Valid operators are:
+            RST - Opc: $DF - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+    ----------------------------------------------------------------------------
+    HTL
+    ----------------------------------------------------------------------------
+        Halt the processor.
+
+        Valid operators are:
+            HTL - Opc: $E0 - Cycles: 1 - Bytes: 1
+    ----------------------------------------------------------------------------
+
+
+        Ok. That's all folks. If you found any errors, or have any doubts, you
+    can contact me at dgmdavid@bol.com.br. Also, if you found any spelling
+    errors, first, sorry for my bad english, and second, tell me about it so I
+    can correct it. :)
+
+EOF

@@ -1,0 +1,47 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Sprite Table description
+-
+- Rev. 0.2 07/21/2006 -- First "Public release".
+- Rev. 0.1 07/01/2006 -- Begin of work.
+--------------------------------------------------------------------------------
+
+        Sprite Table is located at the memory address $012774 with a total of
+    1280 bytes. This area is mirrored to the VPU memory. The Sprite Table
+    consists of 256 sprites with 5 bytes each, as follows:
+
+        Bits 0-10 : 11-bit index of the sprite in Tile Table
+               11 : Horizontal flip (0-not flipped, 1-flipped)
+               12 : Vertical flip
+            13-15 : Palette (0 to 7)
+            16-18 : Sprite size
+            19-23 : Reserved
+            24-31 : 8-bit X position
+            32-39 : 8-bit Y position
+
+
+        The first 11 bits indicate the index location where is the sprite in the
+    Tile Table. See "Tiles.txt" to see how this index is calculated.
+        The bits 11 and 12 indicate if the sprite will be flipped horizontally,
+    vertically of both.
+        The bits 13 to 15 indicate the palette used to display the sprite.
+        The bits 16 to 18 indicates the size of the sprite. Follow a table for
+    sprite sizes:
+                         _____________________________
+                        | N | num. of sprites |  X.Y  |
+                        |---|-----------------|-------|
+                        | 0 | single sprite   | 08x08 |
+                        | 1 | two sprites     | 08x16 |
+                        | 2 | two sprites     | 16x08 |
+                        | 3 | four sprites    | 16x16 |
+                        | 4 | six sprites     | 16x24 |
+                        | 5 | six sprites     | 24x16 |
+                        | 6 | nine sprites    | 24x24 |
+                        | 7 | sixteen sprites | 32x32 |
+                         -----------------------------
+
+
+EOF

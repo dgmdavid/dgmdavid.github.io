@@ -1,0 +1,13 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Sound description file
+-
+- Rev. 0.1 07/23/2006 -- Begin of work.
+--------------------------------------------------------------------------------
+
+    TODO
+
+EOF

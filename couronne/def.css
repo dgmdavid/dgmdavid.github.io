@@ -1,0 +1,52 @@
+ body {
+	font-family: verdana,tahoma;
+	font-size: 11px;
+	font: bold 11px verdana;
+	color: #000000;
+	background-color: #DCF1F1;
+ }
+
+ table {
+	font-family: verdana,tahoma;
+	font-size: 11px;
+	font: bold 11px verdana;
+	color: #000000;
+	background-color: #DCF1F1;
+ } 
+
+ a { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: none;
+	color: blue;
+   }
+ a:hover { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: underline;
+	color: blue;
+   }
+
+ a.menu { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: none;
+	color: white;
+   }
+ a.menu:hover { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: underline;
+	color: yellow;
+   }
+
+
+ img { 
+	border:none 
+     }
+
+ input { 
+	font-family: verdana,arial;
+	font-size: 10px;
+ }
+

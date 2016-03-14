@@ -1,0 +1,20 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Video description file
+-
+- Rev. 0.1 07/01/2006 -- Begin of work.
+--------------------------------------------------------------------------------
+
+        The resolution of the video is 224x224, consisting of 28x28 of 8x8
+    tiles. It runs at 60 fps. It has 3 planes, 2 scrolling planes and 1 window
+    plane. The Plane 0 and 1 have 32x32 tiles, 1 byte for vertical scrolling and
+    32 bytes for horizontal scrolling, 1 byte for each tile row.
+        The window plane has 28x28 tiles and no scrolling data.
+        See "Memory.txt" for memory locations of the planes and scrolling datas.
+
+    TODO: palettes.
+
+EOF

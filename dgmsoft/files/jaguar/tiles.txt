@@ -1,0 +1,28 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Tile description file
+-
+- Rev. 0.2 07/21/2006 -- First "Public release".
+- Rev. 0.1 06/27/2006 -- Begin of work.
+--------------------------------------------------------------------------------
+
+        A tile consists in an 8x8 image with 4-bit color. So, each tile is 32
+    bytes long.
+        The Tile Table Data will store all the tiles you can use at a moment. It
+    is located at memory location $020000 and is 64KB long, so it can contains
+    2048 unique tiles at once.
+        In Plane/Sprite Table you address a tile using a 11-bit number,
+    indicating the index of the tile in Tile Table. This index will be
+    multiplied by 32 and will have $020000 added to it, so it will point exactly
+    to where the tile is in memory.
+        If you want to store a tile in the index 256, first set the D register
+    to $020000 and then add the result of 256 multiplied by 32 (8192).
+        In other example, the tile is in the address $02A000 and you want to
+    know its index. First, subtract $020000 from its address and it will become
+    $A0000, then you can divide it by 32; so you will get the index of 1280.
+
+
+EOF

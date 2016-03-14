@@ -1,0 +1,91 @@
+
+ body {
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: black;
+	background-color: #E0E0E0;
+ }
+
+ table {
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: black;
+	background-color: black;
+	padding: 0px;
+ }
+
+ td { 
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: black;
+	background-color: white;
+	padding: 0px;
+ }
+ td.corpo { 
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: black;
+	background-color: #FFFFFF;
+	padding-left:   10px;
+	padding-right:  10px;
+	padding-top:    10px;
+	padding-bottom: 10px;
+ }
+ td.inverso {
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: white;
+	background-color: black;
+	padding: 0px;
+ }
+ td.post {
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: black;
+	background-color: #BBE1FC;
+	padding: 0px;
+ }
+ td.menor {
+	font-family: verdana,tahoma;
+	font: 11px verdana;
+	color: black;
+	background-color: white;
+	padding:5px;
+	padding-left: 5px;
+	padding-right: 5px;
+ }
+
+
+
+ a { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: none;
+	color: black;
+ }
+ a:hover { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: none;
+	color: blue;
+ }
+
+ a.menu { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: none;
+	color: white;
+ }
+ a.menu:hover { 
+	font-size: 11px;
+	font: bold 11px verdana;
+	text-decoration: none;
+	color: #7FCAFF;
+ }
+
+
+
+ img {
+	border:none 
+ }
+

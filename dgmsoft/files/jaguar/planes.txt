@@ -1,0 +1,39 @@
+--------------------------------------------------------------------------------
+- Jaguar Project (http://br.geocities.com/dgmsofthp/jaguar.html)
+- Virtual Video-Game Hardware System
+- by David G. Maziero
+-
+- Planes description file
+-
+- Rev. 0.1 07/01/2006 -- Begin of work.
+--------------------------------------------------------------------------------
+
+        Plane 0 and 1 consists of 32x32 tile data. Window Plane has 28x28 tiles.
+        Each tile is 2 bytes long, as follows:
+
+        Bits 0-10 : 11-bit index of the tile in Tile Table
+               11 : Horizontal flip (0-no flip, 1-flip)
+               12 : Vertical flip
+            13-14 : Palette (0 to 3)
+               15 : Priority
+
+        The first 11 bits indicate the index location where is the tile in the
+    Tile Table. See "Tiles.txt" to see how this index is calculated.
+        The bits 11 and 12 indicate if the tile will be flipped horizontally,
+    vertically of both.
+        The bits 13 and 14 indicate the palette used to display the tile.
+        The bit 15 indicates the priority of the tile. It this bit is set, then
+    the tile will be placed in front of everything on the screen.
+
+       Plane 0 is at memory location $011010 and is 2KB long.
+       Plane 1 is at memory location $011810 and is 2KB long.
+       Window Plane is at memory location $012010 and is 1568 bytes long.
+
+	   The rendering order is: Plane 0, Plane 1, Sprites, Window Plane.
+	   If a tile in Plane 0 has the priority bit set, it will be put in front of
+	Plane 1 and Sprites, but not in front of Window Plane. If a tile in Plane 0
+	has the priority bit set, it will be put in front of Sprites, but not of the
+	Window Plane. The Window Plane will be in front of everything.
+
+
+EOF
