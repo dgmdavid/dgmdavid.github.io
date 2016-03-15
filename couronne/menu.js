@@ -1,4 +1,4 @@
-// Funções JAVASCRIPT
+// FunÃ§Ãµes JAVASCRIPT
 // by DGM
 
 function poefix() {
@@ -72,14 +72,14 @@ document.write('<BR><BR><BR><BR>');
 
 if( lang==0 ) {
 	poebotao("index-en.html","In English");
-	poebotao("index-sp.html","En Español");
+	poebotao("index-sp.html","En EspaÃ±ol");
 }
 if( lang==1 ) {
-	poebotao("index.html"   ,"Em Português");
-	poebotao("index-sp.html","En Español");
+	poebotao("index.html"   ,"Em PortuguÃªs");
+	poebotao("index-sp.html","En EspaÃ±ol");
 }
 if( lang==2 ) {
-	poebotao("index.html"   ,"Em Português");
+	poebotao("index.html"   ,"Em PortuguÃªs");
 	poebotao("index-en.html","In English");
 }
 

@@ -1,4 +1,4 @@
-// Funções JAVASCRIPT
+// FunÃ§Ãµes JAVASCRIPT
 // by DGM
 
 
