@@ -1,0 +1,34 @@
+﻿ body {
+  font-family: verdana,tahoma;
+  font-size: 11px;
+  color: #000000;
+  background-color: white;
+ }
+ td {
+  font-family: verdana,tahoma;
+  font-size: 11px;
+  color: #000000;
+  background-color:white;
+ }
+
+ a { 
+     text-decoration: none;
+     color: #000000;
+     font: bold;
+     font-size: 11px;
+   }
+ a:hover { 
+           text-decoration: none;
+           color: white;
+           font: bold;
+	   font-size: 11px;
+         }
+
+ img { border:none }
+
+ input { 
+  font-family: verdana,arial;
+  font-size: 12px;
+ }
+
+ HR { width:640px; height:2px; background-color:black; }
